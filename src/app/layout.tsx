@@ -2,6 +2,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, DM_Sans, Playfair_Display, The_Girl_Next_Door} from "next/font/google";
 import "./globals.css";
+//auth provider clerk
+import { ClerkProvider } from '@clerk/nextjs'
+//theme provider 
 import { ThemeProvider } from "next-themes";
 
 //global css
@@ -43,10 +46,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-
-    /* Without suppressHydrationWarning, React compares the server's clean <html> tag with the client's <html class="dark"> tag and panics. 
-    This attribute tells React: "I'm expecting this specific tag to change on the client, so don't worry about it."  */
-
+    <ClerkProvider>
     <html lang="en" suppressHydrationWarning> 
       <body
         className={`${geistSansFont.variable} ${geistMonoFont.variable} ${dmSansFont.variable} ${playfairDisplayFont.variable} antialiased`}
@@ -61,5 +61,6 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
+    </ClerkProvider>
   );
 }
