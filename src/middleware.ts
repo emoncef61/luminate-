@@ -3,7 +3,7 @@ import { cp } from 'fs';
 
 export default clerkMiddleware((auth, req, next) => {
     const protectedRoutes = createRouteMatcher(["/dashboard/(.*)"]);
-    if (protectedRoutes(req)) auth().protect();;
+    if (protectedRoutes(req)) auth().protect();
 });
 
 export const config = {
