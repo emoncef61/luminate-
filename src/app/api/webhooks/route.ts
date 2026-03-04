@@ -1,5 +1,8 @@
+import { db } from '@/lib/db'
+import { clerkClient } from '@clerk/nextjs/server'
 import { verifyWebhook } from '@clerk/nextjs/webhooks'
-import { NextRequest } from 'next/server'
+import { NextRequest, userAgent } from 'next/server'
+import type { User } from '@/generated/prisma'
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,11 +14,51 @@ export async function POST(req: NextRequest) {
     const eventType = evt.type
     console.log(`Received webhook with ID ${id} and event type of ${eventType}`)
     console.log('Webhook payload:', evt.data)
-
+    //when user created or updated 
     if (evt.type === 'user.created' || evt.type === 'user.updated') {
-        console.log('userId:', evt.data.id)
+       const data = evt.data
+       const user: Partial<User> = {
+        id: data.id, 
+        name: `${data.first_name} ${data.last_name}`,
+        email: data.email_addresses[0].email_address,
+        picture: data.image_url,
+      };
+      if (!user) return;
 
+      const dbUser= await db.user.upsert({ //await before starting the next stuff
+        where:{
+          email:user.email
+        },
+        update:user,
+        create:{
+          id:user.id!,
+          name:user.name!,
+          email:user.email!,
+          picture:user.picture!,
+          role: user.role||"USER",
+
+        },
+      });
+        const client = await clerkClient()
+        await client.users.updateUserMetadata(data.id, { 
+          privateMetadata: {
+            role: dbUser.role || "USER",
+          },
+        });
+
+        console.log('userId:', evt.data.id)
+      
     }
+    //when user created or updated 
+    if (evt.type === 'user.deleted'){
+       const userId=evt.data.id;
+       await db.user.delete({
+         where:{
+          id:userId,
+        },
+       })
+    }
+
 
     return new Response('Webhook received', { status: 200 })
   } catch (err) {
