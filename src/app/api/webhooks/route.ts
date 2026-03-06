@@ -29,7 +29,11 @@ export async function POST(req: NextRequest) {
         where:{
           email:user.email
         },
-        update:user,
+        update:{
+          name: user.name,
+          email: user.email,
+          picture: user.picture,
+        },
         create:{
           id:user.id!,
           name:user.name!,
