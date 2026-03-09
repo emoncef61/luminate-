@@ -15,7 +15,7 @@ export default function SidebarNavAdmin({menuLinks,
     return (
         <nav className='relative grow'>
           <Command className='rounded-lg overflow-visible bg-transparent'>
-            <CommandInput placeholder='Search ..? ' />
+            <CommandInput placeholder='Search ...' />
                 <CommandList className='py-2 overflow-visible'>
                   <CommandEmpty>No Links found.</CommandEmpty>  
                   <CommandGroup className='overflow-visible pt-0 relative'>
