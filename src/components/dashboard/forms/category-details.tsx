@@ -32,13 +32,20 @@ import{Input} from "@/components/ui/input"
 import{Button} from "@/components/ui/button"
 import{Checkbox} from "@/components/ui/checkbox"
 import{AlertDialog} from "@/components/ui/alert-dialog"
+import dynamic from 'next/dynamic'
+
+const ImageUpload = dynamic(
+  () => import('../shared/image-upload'),
+  { ssr: false }
+)
 
 
 interface CategoryDetailsProps{
     data?:Category
+    cloudinary_key: string;
 }
 
-const CategoryDetails:FC<CategoryDetailsProps> =({data}) => {
+const CategoryDetails:FC<CategoryDetailsProps> =({data,cloudinary_key}) => {
     //form hook for managing form state and validation
     const form = useForm<z.infer<typeof CategoryFormSchema>>({
         mode:"onChange", //validation mode
@@ -88,6 +95,33 @@ const CategoryDetails:FC<CategoryDetailsProps> =({data}) => {
                       <form onSubmit={form.handleSubmit(handleSubmit)}
                       className="space-y-4"
                     >
+                        <FormField
+                          control={form.control}
+                          name="image"
+                          render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <ImageUpload
+                                      type="profile"
+                                      cloudinary_key={cloudinary_key}
+                                      value={field.value.map((image) => image.url)}
+                                      disabled={isLoading}
+                                      onChange={(url) =>
+                                        field.onChange([{ url }])
+                                      }
+                                      onRemove={(url) =>
+                                        field.onChange([
+                                            ...field.value.filter(
+                                                (current) => current.url !== url
+                                            ),
+                                        ])
+                                      }
+                                      />
+                                </FormControl>
+                            </FormItem>
+                          )}
+                        
+                        />
                         <FormField
                           disabled={isLoading}
                           control={form.control}
